@@ -1,0 +1,22 @@
+Pour résoudre une grille de mahjong :
+Tant que la grille contient des pièces à relier :
+    Je prends la liste des moves possibles au moment T.
+    J'essaie le premier.
+    Je prends la liste des moves possibles au moment T.
+    Si elle est vide :
+        Sortie sans issues. Il faut revenir un move en arrière, noter que ce move n'est pas possible, et continuer.
+    Si elle n'est pas vide :
+        Je prends la liste des moves possibles au moment T.
+        J'essaie le premier.
+
+
+
+Pour obtenir la liste des moves possibles au moment T :
+Pour chacune des pièces :
+    Je regarde ses 4 voisins. 
+    Si l'un est manquant, ou l'un est du même type, une ouverture existe :
+        Pour chacune des pièces du même type que la pièce actuelle :
+            Si un chemin existe, alors c'est un move possible.
+            FinSi
+        FinPour
+    

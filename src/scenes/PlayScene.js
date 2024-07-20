@@ -23,7 +23,7 @@ export default class PlayScene extends Phaser.Scene {
         for (const skinIndex in skins) {
 
             for (let i = 1; i <= MAX_DIFFICULTY; i++) {
-                console.log(`tile${i}${skins[skinIndex]}`, `static/${skins[skinIndex]}/tile${i}.svg`);
+                //console.log(`tile${i}${skins[skinIndex]}`, `static/${skins[skinIndex]}/tile${i}.svg`);
                 this.load.image(`tile${i}${skins[skinIndex]}`, `static/${skins[skinIndex]}/tile${i}.svg`);
             }
         }
@@ -35,11 +35,48 @@ export default class PlayScene extends Phaser.Scene {
         this.grid = this.generate_grid(15, 8);  // 10x10 for simplicity
         this.graphics = this.add.graphics();
         this.tileSprites = [];
+        this.drawHUD();
         if (this.grid) {
             this.drawTiles();
         } else {
             console.error('Failed to generate a valid grid.');
         }
+    }
+
+    update(time, delta) {
+
+    }
+
+    onTileClicked(x, y) {
+        if (this.selectedTile) {
+            // Second tile clicked
+            const firstTile = this.selectedTile;
+            const secondTile = { x, y, tile: this.grid[x][y] };
+
+            if (firstTile.tile === secondTile.tile &&
+                (firstTile.x !== secondTile.x || firstTile.y !== secondTile.y)) {
+                if (this.findPath(firstTile.x, firstTile.y, secondTile.x, secondTile.y)) {
+                    this.grid[firstTile.x][firstTile.y] = null;
+                    this.grid[secondTile.x][secondTile.y] = null;
+
+                    if (this.isGameOver()) {
+                        this.hasWon();
+                    }
+                    this.drawTiles();
+                }
+            }
+            this.selectedTile = null;
+            this.graphics.clear();
+        } else {
+            // First tile clicked
+            this.selectedTile = { x, y, tile: this.grid[x][y] };
+            this.graphics.lineStyle(3, 0xff0000, 1);
+            this.graphics.strokeRect(x * 64, y * 64, 64, 64);
+        }
+    }
+
+    drawHUD(){
+
     }
 
     drawTiles() {
@@ -73,35 +110,6 @@ export default class PlayScene extends Phaser.Scene {
                     this.tileSprites.push(sprite);
                 }
             }
-        }
-    }
-
-    onTileClicked(x, y) {
-        console.log({ x, y, tile: this.grid[x][y] });
-        if (this.selectedTile) {
-            // Second tile clicked
-            const firstTile = this.selectedTile;
-            const secondTile = { x, y, tile: this.grid[x][y] };
-
-            if (firstTile.tile === secondTile.tile &&
-                (firstTile.x !== secondTile.x || firstTile.y !== secondTile.y)) {
-                if (this.findPath(firstTile.x, firstTile.y, secondTile.x, secondTile.y)) {
-                    this.grid[firstTile.x][firstTile.y] = null;
-                    this.grid[secondTile.x][secondTile.y] = null;
-
-                    if (this.isGameOver()) {
-                        this.hasWon();
-                    }
-                    this.drawTiles();
-                }
-            }
-            this.selectedTile = null;
-            this.graphics.clear();
-        } else {
-            // First tile clicked
-            this.selectedTile = { x, y, tile: this.grid[x][y] };
-            this.graphics.lineStyle(3, 0xff0000, 1);
-            this.graphics.strokeRect(x * 64, y * 64, 64, 64);
         }
     }
 
@@ -158,6 +166,7 @@ export default class PlayScene extends Phaser.Scene {
 
         return grid;
     }
+
     generate_grid_random(x, y) {
         let grid = Array.from({ length: x }, () => Array(y).fill(null));
         let availableTiles = new Set();
@@ -224,6 +233,17 @@ export default class PlayScene extends Phaser.Scene {
         }
 
         return grid;
+
+    }
+
+    getAvailableMoves(grid){
+        grid.forEach(lines => {
+            console.log(lines);
+        })
+    }
+
+    isSolvable(gridToResolve){
+        let grid = gridToResolve;
 
 
     }
